@@ -1,0 +1,120 @@
+# Product Requirements Document — Patient Summary Dashboard (India)
+
+**v1.1 · 24 Oct 2026 · Status: Draft, BLOCKED** — not ready for estimation until B1–B5 close
+Traces to MRD v3.1 · Confidential
+
+> **Legend:** `[V]` verified · `[P]` proposed · `[Q]` open. Scope aligned to the refined concept: appointments, basic history, reports, pending actions. Read-only, IPS-conformant sections.
+
+---
+
+## 1. Document control
+
+| Field | Value |
+|---|---|
+| Document ID | PRD-PSD-IN-001 |
+| Version | 1.1 |
+| Status | Draft, blocked on B1–B5 |
+| Owner | Product |
+| Traces to | MRD v3.1 (MR-1…MR-6) |
+| Reviewers | Clinical lead, Legal/DPO, Eng lead *[to be named]* |
+| Release authority | Release gate §9 |
+| Scope | MVP, read-only, single-facility records |
+
+## 2. Objective & success definition
+
+- **Objective:** reduce the time an OPD consultant needs to reach important patient information during busy periods, with zero added data-entry burden and no new patient-safety risk.
+- **Primary success metric:** median time-to-needed-info ≥50% below a measured baseline `[P]` (baseline established in the validation sprint; target confirmed after baseline).
+- **Guardrail metrics:** 0 wrong-patient opens; 100% source-attribution audit pass; 100% access/denial logging.
+- **Non-goals:** diagnosis, clinical alerts or decision support, data entry/editing, AI inference, external ABDM records (phase 2).
+
+## 3. Users & primary flow
+
+Primary user: OPD consultant. Secondary: nurse, front desk, duty doctor. Core flow: **(1)** search patient → **(2)** confirm identity (mandatory when ambiguous) → **(3)** review 4-panel summary → **(4)** act or open source record → **(5)** return to HMIS. Design principle: the dashboard complements the HMIS; it never becomes a second system of record.
+
+## 4. Scope — the four panels (read-only, IPS-conformant)
+
+| Panel | Contents | IPS / standard mapping |
+|---|---|---|
+| 1. Appointments | Today's / relevant scheduling context for the patient | ABDM appointment/encounter context |
+| 2. Basic history | Active problems, allergies/intolerances, current medications, last encounter summary | IPS required: Problem List, Allergies, Medication Summary |
+| 3. Reports | Recent lab / investigation / imaging results with date & source | IPS recommended: Results; LOINC-coded where available |
+| 4. Pending actions | The four pending-access states (MRD §5), plus items awaiting review | Product-specific; consent state per ABDM |
+
+## 5. Blockers — must close before estimation
+
+| ID | Blocker | Owner | Blocks | Close criterion |
+|---|---|---|---|---|
+| B1 | HMIS read-API access, licence & commercial terms | Product/Partnerships | FR-001/003/009/011 | Signed API access on ≥2 HMIS |
+| B2 | Identifier set (ABHA/MRN/name) + minimum-match search rule | Clinical/Eng | FR-001/002 | Rule approved by clinical lead |
+| B3 | Staleness thresholds per panel (e.g. meds >90d, history >1y) | Clinical lead | FR-005 | Thresholds signed off |
+| B4 | Clinical approval of panels & fields (non-diagnostic) | Clinical lead | FR-003 | Panel spec approved |
+| B5 | DPDP legal review + SaMD non-device opinion + residency | Legal/Regulatory | FR-007/008/010 | Written legal opinion |
+
+## 6. Functional requirements
+
+| ID | Pri | Requirement | Acceptance test | MR |
+|---|---|---|---|---|
+| FR-001 | P0 | Search by ABHA / MRN / name; ≤50 results returned. | Works for each identifier set agreed in B2; name-only rule decided in B2 `[Q]`. | MR-1 |
+| FR-002 | P0 | ≥2 candidate matches → user must explicitly select + confirm; no auto-open. | 100 ambiguous test cases: 0 auto-opens. | MR-1 |
+| FR-003 | P0 | All four panels on one default view; long lists collapse with a visible count; if HMIS responds >5 s show a defined "Retrieval slow" state. | Usability check, 10 sample patients; slow-state rendered & tested. | MR-1 |
+| FR-004 | P0 | Every item shows source system, record date, value; nothing inferred; mapped to IPS sections. | 100-item audit: 100% pass; 0 unsourced items. | MR-2 |
+| FR-005 | P0 | Each panel shows exactly one state: Available (last-updated date) / None on record / Pending access (4 sub-states, MRD §5) / Retrieval failed. A failed or pending allergy is **NEVER** shown as "No known allergies". | Every state rendered in test; allergy safety rule explicitly tested. | MR-5 |
+| FR-006 | P0 | Role-based access per panel; denials shown to user + logged (user, role, patient, timestamp). | Role×panel matrix signed off `[Q]`; 50 denials logged in test. | MR-3 |
+| FR-007 | P0 | Where a source requires consent, show consent state; items without valid consent are not displayed. | Consent cases pass for every consent state. | MR-3 |
+| FR-008 | P0 | Audit log immutable, CSV-exportable, retention ≥2y `[P]`, reconciled with DPDP erasure duties. | 100% views & denials logged; legal sign-off on reconciliation `[Q]`. | MR-3 |
+| FR-009 | P1 | Link to HMIS source record via SSO where the user is permitted. | Opens correct record in test HMIS. | MR-4 |
+| FR-010 | P0 | Patient data stored & processed in India; hosting model confirmed `[Q]`. | Hosting documented; legal sign-off. | MR-3 |
+| FR-011 | P1 | Appointments panel shows today's / relevant scheduling context from the HMIS. | Correct appointments shown for a test clinic day. | MR-1 |
+
+## 7. Non-functional requirements
+
+| Category | Requirement | Grade |
+|---|---|---|
+| Transport security | TLS 1.2+ (confirm vs org policy & CERT-In guidance) | `[P]/[Q]` |
+| Data at rest | AES-256 encryption | `[P]` |
+| Session | Timeout 30 min; re-auth on resume | `[P]` |
+| Accessibility | WCAG 2.1 AA | `[P]` |
+| Performance | Summary render ≤2 s on cached data; HMIS call budget ≤5 s else degrade (FR-003) | `[P]` |
+| Availability | Target to be set with buyer | `[Q]` |
+| Data residency | Stored & processed in India (FR-010) | `[P]/[Q]` |
+| Compliance | DPDP obligations confirmed by legal review (B5), not assumed | `[Q]` |
+
+## 8. Edge cases & safety rules
+
+- Ambiguous identity → force manual selection; never auto-open (FR-002).
+- Failed/pending allergy retrieval → explicit "failed"/"pending"; never "No known allergies" (FR-005).
+- Stale data → show "Last updated: [date]"; flag beyond staleness threshold (B3).
+- Partial HMIS response → render available panels; mark unretrieved ones "failed", not empty.
+- Access denied → show reason to user + write denial to audit log (FR-006).
+- Consent absent/expired → hide item, show consent-required state (FR-007).
+
+## 9. Release gate (all must pass)
+
+- **Sign-off:** clinical (panels, fields, staleness, non-device scope) + legal (DPDP, hosting/residency, audit retention).
+- **Safety tests:** FR-002 (100 ambiguous, 0 auto-opens); FR-005 (all states + allergy rule); FR-006 (50 denials logged); FR-007 (consent cases pass).
+- **QA:** FR-004 (100-item audit, 100% pass); all P0 pass.
+- **Performance:** render & degrade budgets met (§7).
+
+## 10. Metrics (aligned to MRD §12)
+
+| Metric | Definition & method | Baseline | Target |
+|---|---|---|---|
+| Time-to-needed-info | Median sec, patient-open → review confirmed; instrumented timer | Measured in sprint | ≥50% below `[P]` |
+| Encounter adoption | % eligible OPD visits summary opened, day 90; app logs | 0 at launch | ≥65% `[P]` |
+| Wrong-patient opens | Confirmed wrong-patient views; audit + incident reports | 0 expected | 0 `[P]` |
+| Information completeness | % encounters no critical item missing; chart audit | Measured | ≥80% `[P]` |
+| Usability (SUS) | System Usability Scale, pilot survey | Measured | Set after baseline `[Q]` |
+
+## 11. Traceability, assumptions & open questions
+
+**Traceability:** MR-1 → FR-001/002/003/011 · MR-2 → FR-004 · MR-3 → FR-006/007/008/010 · MR-4 → FR-009 · MR-5 → FR-005 · MR-6 → deferred (phase 2).
+
+**Assumptions (to validate):** HMIS exposes read APIs; records are sufficiently structured; clinicians will use an adjacent view; owners will pay per-site.
+
+**Open questions:**
+- Which pending-access states clinicians actually encounter (MRD §5).
+- Final role×panel access matrix.
+- Name-only search vs ≥2-identifier requirement (B2).
+- Audit retention vs DPDP erasure-right reconciliation (B5).
+- SaMD device classification outcome (B5).
+- Appointment-panel value — confirm clinicians want it (low-confidence need).
