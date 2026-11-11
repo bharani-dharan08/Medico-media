@@ -1,0 +1,190 @@
+# Market Requirements Document — Patient Summary Dashboard (India)
+
+**v3.1 · 24 Oct 2026 · Status: Draft for validation · Confidential**
+Backed by the Research & Evidence Dossier · Supersedes v3.0
+
+> **Evidence legend:** `[V-P]` verified primary · `[V-S]` verified secondary · `[E]` estimate · `[H]` hypothesis, unvalidated · `[Q]` open question · `[P]` proposed target. Every `[V]` claim is sourced in the Dossier.
+
+---
+
+## 1. Document governance
+
+| Field | Value |
+|---|---|
+| Document ID | MRD-PSD-IN-001 |
+| Version | 3.1 |
+| Status | Draft for validation |
+| Owner | Product Strategy |
+| Author | Product team |
+| Reviewers | Clinical lead, Legal/DPO, Eng lead, Commercial *[to be named]* |
+| Approval | Proceed / Pivot / Stop at gate (§11) |
+| Review cadence | At each validation milestone; else quarterly |
+| Audience | Product leadership, clinical reviewers, engineering, prospective partners |
+| Confidentiality | Internal + NDA partners |
+
+**Revision history:** v2.0 initial evidence+hypothesis draft · v2.1 corrected exec-summary contradiction, defined pending-access states · v2.2 restored competitive section, added stakeholders & sizing method · v3.0 grounded in peer-reviewed + regulatory sources, reconciled to refined 4-panel concept · v3.1 full governance, JTBD, validation instrument, risk register, business model, GTM.
+
+## 2. Executive summary
+
+- **Problem** `[H, strong analogous evidence]`: during busy periods clinicians lack quick, consolidated visibility of important patient information — appointments, basic history, reports and pending actions — forcing time-consuming navigation across HMIS screens, scanned documents and external records.
+- **Target** `[V-reasoned]`: mid-size private multispecialty clinics (50–500 OPD/day) already running an HMIS; primary user the OPD consultant; economic buyer the clinic owner/medical director.
+- **Evidence strength:** problem CLASS is STRONG (peer-reviewed time-motion literature [1][2][3]); demand for THIS product in Indian OPD is UNPROVEN. Infrastructure is verified ([8]).
+- **Opportunity & position:** a read-only, source-attributed summary layered on the existing HMIS, conforming to HL7 International Patient Summary [7], with data-access failures made explicit — the trusted "first 30 seconds" view that complements, not replaces, the HMIS. Unmet need: no deployed system offers a single, visit-focused, cross-source, attributed view.
+- **Major risks:** HMIS vendor builds it natively; clinician adoption; HMIS API access; device classification; willingness to pay.
+- **Recommendation — GO to validate:** fund an 8-week validation gate (§11). Do not build the MVP until its Proceed criteria are met. This is a decision to validate, not yet to build.
+
+## 3. Business context & strategic opportunity
+
+India has the digital substrate for record exchange at national scale: ~93.95 crore ABHA IDs and 104+ crore linked records, July 2026 `[8, V-S]`. Yet clinical workflows still require assembling encounter history across multiple screens, scans and consented external records. Peer-reviewed data show ambulatory physicians spend ~49% of the clinic day on EHR/desk work vs ~27% on direct care [1], and ~16 min of EHR time per encounter, chart review a leading component [3]. If even a fraction of that cost transfers to Indian OPD, compressing it has clear operational value. We do **not** assume time pressure is uniform — low-volume/single-specialty clinics may see little benefit; a segmentation question tested in §9.
+
+## 4. Problem definition & evidence
+
+| Dimension | What we can say today | Grade |
+|---|---|---|
+| When/where friction occurs | Hypothesised at start of busy OPD encounters when assembling history; to be located precisely by contextual inquiry. | `[H]` |
+| Most important information | Working set: active problems, allergies, current meds, recent results, last encounter, today's appointment context. Validate ranking with clinicians. | `[H]` |
+| Frequency & severity | Analogous literature implies high frequency; India magnitude unmeasured. | `[H]/[Q]` |
+| Current workarounds & cost | Manual search, paper, phone calls, asking the patient — slow, unverifiable, incomplete. | `[H]` |
+| Root cause (critical) | Could be interface, fragmentation, data quality, access rules, or training. A dashboard only fixes interface+fragmentation. Interviews must isolate which dominates. | `[Q]` |
+
+**Refined problem statement:** *"During high-volume periods, OPD consultants in digitised private multispecialty clinics cannot assemble a trusted, encounter-relevant picture of a patient quickly, because the needed information is scattered, inconsistently attributed, and sometimes inaccessible — costing consultation time and risking decisions made on incomplete information."*
+
+**Counter-evidence / unresolved:** if the dominant root cause is data quality or access policy rather than presentation, the dashboard is the wrong primary intervention — captured in the Stop criteria.
+
+## 5. "Pending access" — four distinct states (never interchangeable)
+
+| State | Meaning | Product behaviour |
+|---|---|---|
+| Access requested | Access asked for, awaiting approval | Show "request pending"; do not imply absence |
+| Consent pending | DPDP/ABDM consent not yet granted | Show "consent required/pending"; item hidden until valid consent |
+| Access restricted | User's role not permitted | Show "restricted for your role"; log the denial |
+| Retrieval failed | Data exists but fetch failed | Show "failed to retrieve"; **NEVER** render as "none" (allergy safety rule) |
+
+`[Q]` Which of these states clinicians actually encounter, and in what proportion, is an open question for discovery.
+
+## 6. Market & customer segmentation
+
+| Segment | Workflow pain / data maturity | Integration & procurement | Verdict |
+|---|---|---|---|
+| Private multispecialty clinic, 50–500 OPD/day, HMIS in place | High OPD volume; digitised data; speed is material | Moderate integration; faster procurement than chains | **PRIMARY ICP** `[H]` |
+| Small single-specialty clinic | Lower volume; thinner records; less pain | Simple but low willingness to pay | Deferred `[H]` |
+| Hospital / teaching hospital | Rich data; real pain | Complex integration; long procurement; many stakeholders | Phase 2 `[H]` |
+| Government facility (e-Hospital/ABDM) | Pain exists; policy-driven | Tender procurement; different terms | Not assessed `[Q]` |
+
+**Recommended initial ICP & why:** mid-size private multispecialty clinics — they combine existing digitised data (so a summary has material to show), OPD volume high enough that seconds saved compound, and ownership-led procurement short enough to run a paid pilot inside two quarters.
+
+## 7. Stakeholder & user analysis
+
+| Stakeholder | Role in decision | Primary need | Conflict |
+|---|---|---|---|
+| OPD consultant | Primary user | Fast, trustworthy, complete view | Wants breadth & speed |
+| Nurse / front desk | Secondary user | Scheduling & prep context | Narrower data scope |
+| Clinic owner / medical director | Economic buyer | Throughput, ROI, low disruption | Cost vs benefit |
+| CIO / IT admin | Influencer / implementer | Integration simplicity, security | Low maintenance burden |
+| Privacy / security officer | Approver / veto | Minimum-necessary access, DPDP | Opposes broad access |
+| Patient | Affected party | Consent, privacy | Controls external records |
+
+**Key tension & resolution:** clinician breadth vs privacy-officer minimum-necessary — resolved by role-based, per-panel access with every view and denial logged.
+
+## 8. Jobs to be done
+
+- **JTBD-1:** grasp what matters about a patient in seconds on opening them (trigger: patient opened; barrier: scattered data).
+- **JTBD-2:** be told clearly when data is missing or blocked, to avoid mistaking non-display for absence of a condition.
+- **JTBD-3:** jump to the underlying record to verify without re-searching (trust + traceability).
+
+| Need | Importance | Frequency | Evidence confidence |
+|---|---|---|---|
+| See active problems/allergies/meds at a glance | High | Every encounter | Medium (analogous) |
+| Know data provenance & recency | High | Every encounter | Medium |
+| Be warned of missing/blocked data | Critical (safety) | Intermittent | Medium |
+| Appointment/scheduling context | Medium | Daily | Low — validate |
+
+## 9. Voice-of-customer & validation plan (proposed — not yet conducted)
+
+No primary research has been conducted. The following is the plan, not results.
+
+- **Sample & recruitment:** 12–15 OPD consultants + 4–6 administrators across 5–6 private multispecialty clinics; purposive sampling across specialties and clinic sizes; theme-saturation basis. Optional confirmatory survey n≈97 for ±10 pts at 95% confidence (worst case p=0.5).
+- **Method:** contextual inquiry + time-motion on ≥100 OPD encounters; friction scoring; buyer interviews with working prototype.
+- **Bias controls:** neutral, non-leading questions; observe before asking; separate the person who benefits (clinician) from the person who pays (owner); don't demo before eliciting the problem.
+- **Interview guide (neutral):**
+  - Which patient details do you look for most when a patient walks in during a busy session?
+  - Walk me through the last time finding patient information slowed you down. What did you do?
+  - How do you handle a record that's incomplete or you can't access?
+  - What does "pending access" or "waiting on records" mean in your actual workflow?
+  - What would make a summary genuinely useful without adding to your mental load?
+  - What would stop you adopting another screen/tool? (owner) What would justify paying for it?
+- **Evidence thresholds:** confirm if ≥60% report weekly retrieval friction AND measured time-to-info is materially high; revise if 40–60%; reject if <40%.
+
+## 10. Competitive landscape & substitutes
+
+*(Feature claims from official documentation only; absence of documentation ≠ absence of feature.)*
+
+| Alternative | Documented strength | Gap vs this concept | Evidence |
+|---|---|---|---|
+| Native HMIS summary (Bahmni [9], commercial suites) | In-workflow; no extra cost; configurable dashboard | Facility-scoped; chart by-product, not visit-specific cross-source attributed view | `[V-S]/[H]` |
+| NIC e-Hospital [10] | Scaled public HMIS; ABDM-linked | Operations-oriented; no attributed encounter summary documented | `[V-S]/[H]` |
+| ABDM patient-initiated pull [5] | Cross-facility consent framework exists | Per-request friction; clinician-side adoption unproven | `[V-P]/[H]` |
+| Improve existing EHR (do nothing new) | Lowest cost; no new vendor | Doesn't deliver cross-source attributed view; depends on vendor roadmap | `[H]/[Q]` |
+| Manual / paper / phone | Full user control | Slow, unverifiable, incomplete | `[H]` |
+
+**Differentiation** `[H]`: one persistent, encounter-focused, IPS-conformant, source-attributed view across in-house + consented external records, with access failures explicit.
+**Primary threat** `[H]`: HMIS vendor adds it natively at ~zero marginal customer cost → explicit PIVOT to vendor partnership. We do not infer competitor gaps merely from documentation silence.
+
+## 11. Market requirements register
+
+| ID | Pri | Market requirement (outcome-oriented) | Target segment | Success condition | Conf. | Validation | Trace |
+|---|---|---|---|---|---|---|---|
+| MR-1 | Must | Encounter-relevant info (appointments, history, reports, pending actions) in one view without HMIS navigation | Primary ICP | Median time-to-info ≥50% below measured baseline `[P]` | Med | Time-motion | FR-001/2/3/11 |
+| MR-2 | Must | Every item shows source + date; no inferred/diagnostic content; IPS-conformant | All | 100% pass 100-item audit; 0 unsourced; pilot ≥98% | High | Chart audit | FR-004 |
+| MR-3 | Must | Role-based, consent-aware access; DPDP audit; India residency | All | 100% access/denials logged; legal+security pass | High | Legal review | FR-006/7/8/10 |
+| MR-4 | Must | Works alongside active HMIS; zero new mandatory entry | Primary ICP | Read-integration feasible ≥2 HMIS; 0 new entry steps | Low | Integration test | FR-009, B1 |
+| MR-5 | Must | Four pending-access states shown distinctly | All | Definitions agreed; each state passes release test | Med | Prototype test | FR-005 |
+| MR-6 | Could | ABDM-consented external records | Phase 2 | Deferred | Low | Phase 2 | deferred |
+
+## 12. Value proposition, business model & success measures
+
+- **Value proposition:** for OPD consultants who lose time assembling patient context, the dashboard gives a trusted at-a-glance, source-attributed view in the first seconds of an encounter — unlike facility-bound HMIS summaries, it spans sources and is explicit about gaps. We do **not** claim improved clinical outcomes; no evidence supports that yet.
+- **Business model** `[H]`: B2B institutional licence, per-site annual subscription (ACV a hypothesis set by buyer interviews/LOIs). Costs: integration, support, compliance. Sales cycle: owner-led, target < 2 quarters for pilot.
+
+| Measure | Definition & method | Baseline | Target |
+|---|---|---|---|
+| Time-to-needed-info | Median sec patient-open→review-confirmed; time-motion | Measured in sprint | ≥50% below `[P]` |
+| Encounter adoption | % eligible OPD visits summary opened, day 90; logs | 0 at launch | ≥65% `[P]` |
+| Information completeness | % encounters no critical item missing; chart audit | Measured | ≥80% `[P]` |
+| Wrong-patient opens | Confirmed wrong-patient views; audit+incidents | 0 expected | 0 `[P]` |
+| Paid-pilot conversion | Pilot sites → paid contract by month 6 | — | ≥2 of 3 `[P]` |
+
+## 13. Risk register
+
+| Risk | Likelihood | Impact | Mitigation | Review trigger |
+|---|---|---|---|---|
+| HMIS vendor adds it natively | Med-High | High | Standards wedge; PIVOT to partnership | Vendor roadmap signal |
+| Clinicians don't adopt | Med | High | In-workflow design; adoption bar in pilot | <65% day-90 use |
+| HMIS API access denied/costly | Med | High (blocks MR-4) | Early integration test; multi-vendor | Integration infeasible ≥2 HMIS |
+| Scanned records parse poorly | Med | Med | Scope to structured first; audit | Completeness <80% |
+| SaMD device classification | Low-Med | High | Non-diagnostic scope; legal opinion (B5) | Legal flags device |
+| No willingness to pay | Med | High | LOIs before build | <3 LOIs |
+| DPDP non-compliance | Low | Severe | Consent/audit/residency as P0 | Legal review fail |
+
+## 14. Go-to-market & decision gate
+
+**Pilot approach:** 2–3 private multispecialty clinics; single-specialty wedge within each to limit integration surface; design-partner pricing; co-develop with 1–2 cooperative HMIS vendors.
+
+| Decision | Condition | Outcome |
+|---|---|---|
+| **PROCEED** | ≥60% clinicians report weekly friction AND baseline measured AND integration feasible ≥2 HMIS AND ≥3 LOIs | Fund MVP; pilot launch ~week 16 |
+| **PIVOT** | ≥40% friction but any Proceed condition unmet | HMIS-vendor partnership or narrow to one specialty/facility |
+| **STOP** | <40% report friction OR integration infeasible on every HMIS | Cease market activity |
+
+## 15. Strategic recommendations
+
+- **Validated:** the clinician chart-review/EHR time burden (class); India regulatory & interoperability terrain; national digitisation scale.
+- **Unvalidated (must test):** India OPD problem magnitude; demand for a separate dashboard; segment counts; willingness to pay.
+- **Recommended target:** mid-size private multispecialty clinics, 50–500 OPD/day, HMIS in place.
+- **MVP boundary:** read-only, 4 panels, IPS-conformant, in-house records only (external = phase 2).
+- **Proceed only if** the gate's four conditions are met; otherwise pivot or stop as defined.
+- **Unresolved before build:** root-cause of friction; HMIS API terms; device classification; buyer economics; pending-state reality.
+
+## Sources
+
+[1] Sinsky et al., *Allocation of Physician Time in Ambulatory Practice*, Ann Intern Med 2016;165(11):753–760 · [2] Arndt et al., *Tethered to the EHR*, Ann Fam Med 2017;15(5):419–426 · [3] Overhage & McCallie, Ann Intern Med 2020;172(3):169–174 · [4] DPDP Act 2023 + Rules 2025 (MeitY) · [5] ABDM HDM Policy + HIP/HIU Guidelines (NHA) · [6] EHR Standards for India 2016 (MoHFW) · [7] HL7 IPS STU1 / ISO 27269 · [8] ABDM figures Jul 2026 (IANS; Indian Pharma Post — secondary) · [9] Bahmni docs · [10] NIC e-Hospital. Full register with URLs & access dates in the Research & Evidence Dossier.
