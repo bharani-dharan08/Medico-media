@@ -1,0 +1,4 @@
+MEDICO-MEDIA — Patient Summary Dashboard
+Market and product documentation for a proposed Patient Summary Dashboard — a read-only, source-attributed view layered on a clinic's existing HMIS, giving OPD consultants quick visibility of appointments, basic history, reports, and pending actions during busy periods.
+Geography: India · Stage: Pre-build, under validation · Updated: 11 Nov 2026
+Honest status: The problem class (clinician information-retrieval burden) and the regulatory/interoperability terrain are well-evidenced. Demand for this product in Indian OPD is not yet proven. These documents are a decision-ready validation plan, not a claim of proven market need.
