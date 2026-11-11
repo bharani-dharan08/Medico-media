@@ -1,0 +1,6 @@
+{
+  "name": "MEDICO-MEDIA | Rapid Clinical Triage & Patient Summary",
+  "description": "Vision UI dark glassmorphism clinical patient-summary and rapid triage dashboard for high-volume clinic hours with real-time analytics, biomarker trajectories, organ-system risk heatmaps, and AI pre-encounter synthesis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
