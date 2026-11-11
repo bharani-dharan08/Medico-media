@@ -1,0 +1,247 @@
+Patient Summary Dashboard — Market Research & Evidence Dossier (India)
+
+Companion evidence base to MRD v3.0 and PRD v1.0 · 24 Oct 2026 · Owner: Product Strategy · Confidential
+
+Evidence grading used throughout: [V-P] verified primary source · [V-S] verified secondary source · [E] reasoned estimate · [H] hypothesis, not yet validated · [Q] open question. This dossier substantiates the claims cited in the one-page MRD and PRD. It deliberately separates what the published record proves (the general clinician information-retrieval burden, the regulatory regime, the interoperability standards) from what remains unproven for this specific product and market (India-specific OPD magnitude, demand, willingness to pay).
+
+1. Problem evidence — is clinician information-retrieval burden real?
+
+The general problem class is among the best-documented findings in health-IT research. What is NOT yet established is the magnitude in Indian private multispecialty OPD specifically, or that a separate summary dashboard is the correct remedy. Both are the subject of the validation sprint.
+
+Finding
+
+Source
+
+Grade
+
+Ambulatory physicians spent 27.0% of the clinic day on direct clinical face time and 49.2% on EHR and desk work; a further 1–2 hours of EHR work after clinic (“pajama time”).
+
+Sinsky C, et al. Allocation of Physician Time in Ambulatory Practice. Ann Intern Med 2016;165(11):753–760.
+
+[V-S]
+
+Primary care physicians spent ~5.9 hours of an 11.4-hour workday on the EHR; clerical and inbox work dominated. Documents the clerical load the summary aims to cut.
+
+Arndt BG, et al. Tethered to the EHR. Ann Fam Med 2017;15(5):419–426.
+
+[V-S]
+
+Physicians spent ~16 minutes per encounter using the EHR; chart review, documentation and ordering were the three largest components. Chart review is the task the dashboard targets.
+
+Overhage JM, McCallie D. Physician Time Spent Using the EHR During Outpatient Encounters. Ann Intern Med 2020;172(3):169–174.
+
+[V-S]
+
+Clinician-reported information retrieval friction during busy Indian OPD sessions; magnitude and frequency in multispecialty private clinics.
+
+No published India-specific OPD time-motion study located. Primary data required.
+
+[H] / [Q]
+
+Interpretation: the literature robustly establishes that clinicians lose substantial time to EHR navigation and that chart review is a large, recurring cost — the exact task a summary view compresses. It does NOT prove the magnitude transfers to Indian private OPD, nor that the bottleneck is screen navigation rather than data fragmentation, data quality, or access restrictions. The refined problem statement (“quick visibility of important patient information during busy periods”) is therefore graded [H], supported by a strong analogous evidence base, pending India-specific time-motion measurement.
+
+2. Regulatory & privacy regime (India) — primary sources
+
+Obligation
+
+Instrument & status
+
+Binding?
+
+Grade
+
+Lawful processing, consent, purpose limitation, data-principal rights, breach notification to the Data Protection Board and affected principals.
+
+Digital Personal Data Protection Act, 2023; DPDP Rules notified by MeitY, Nov 2025. Phased commencement; core obligations expected to bite ~18 months from notification (confirm exact dates in the Gazette).
+
+Binding law
+
+[V-P]
+
+Consent artefact, purpose, data-fiduciary duties, minimum-necessary access, grievance redress for health data.
+
+ABDM Health Data Management Policy (NHA).
+
+Binding within ABDM participation
+
+[V-P]
+
+Consent-manager flow; Health Information Provider (HIP) and User (HIU) roles; consent artefact scope, expiry and revocation; health information types.
+
+ABDM HIP/HIU Guidelines (NHA).
+
+Applies to ABDM-connected exchange
+
+[V-P]
+
+Clinical terminology and exchange standards: SNOMED CT (clinical terms), LOINC (lab/obs), ICD-10 (classification), HL7 FHIR (exchange).
+
+EHR Standards for India, MoHFW, 2016 (revised editions).
+
+Recommended standard
+
+[V-P]
+
+Whether a read-only, non-diagnostic summary is outside medical-device (SaMD) classification under CDSCO rules.
+
+CDSCO Medical Device Rules 2017 — requires specific legal opinion.
+
+Open
+
+[Q]
+
+Consequence for the product: DPDP consent, minimum-necessary access, access logging and breach duties are binding design constraints, not optional features. They are reflected as P0 requirements in the PRD (consent state, role-based access, immutable audit, India data residency). Legal opinion on device classification is a release-gate dependency.
+
+3. Interoperability — the product should conform, not invent
+
+A patient summary is already a defined, standardised artefact internationally. Conforming to it lowers integration risk and strengthens the “source-attributed” claim.
+
+Standard
+
+What it defines
+
+Relevance
+
+Grade
+
+HL7 International Patient Summary (IPS); ISO 27269:2021; FHIR IG STU1
+
+A minimal, non-exhaustive, condition-independent summary. Required sections: Allergies/Intolerances, Medication Summary, Problem List. Recommended: Immunizations, Results, Procedures, Medical Devices. Optional: Vital Signs, Past Illness, Social History, Plan of Care, etc.
+
+Directly maps to the MVP sections. Adopt IPS section model so “history + reports” is standards-based and portable.
+
+[V-P]
+
+ABDM FHIR profiles / HI types (DiagnosticReport, Prescription, OPConsultation, DischargeSummary, WellnessRecord, etc.)
+
+The record bundle types ABDM exchanges via consent.
+
+Defines what “external records” (phase 2, MR-6) can contain and how appointments/reports surface.
+
+[V-P]
+
+4. Competitive landscape — grounded in product documentation
+
+Feature claims below are taken from official product documentation only; gaps are marked [H] where documentation is silent (absence of documentation is not proof of absence).
+
+Alternative
+
+Documented capability (official docs)
+
+Gap relative to this concept
+
+Grade
+
+Bahmni (open-source HIS; OpenMRS-based)
+
+Configurable patient dashboard, visit dashboard, Care View; registration; ABDM HIP integration and HI-type support per Bahmni wiki.
+
+Facility-scoped; a configured chart view, not a cross-source, encounter-focused summary with explicit data-access/failure states. [H]
+
+[V-S]
+
+NIC e-Hospital @NIC / eHospital Cloud
+
+Government HMIS: registration, OPD, billing, lab, pharmacy; deployed across public hospitals; ABDM-linked.
+
+Oriented to public-hospital operations; no documented encounter-ready cross-record summary with attribution. [H]
+
+[V-S]
+
+Commercial HMIS (e.g., clinic/hospital suites)
+
+Native patient history and summary screens within the record.
+
+Single-facility; summary is a by-product of the chart, not visit-specific; vendor roadmaps unknown. [Q]
+
+[H]/[Q]
+
+ABDM patient-initiated retrieval
+
+Consent-based cross-facility record pull via consent manager (HDM Policy, HIP/HIU guidelines).
+
+Per-request consent friction; clinician-side adoption unproven; not a persistent at-a-glance view. [H]
+
+[V-P]/[H]
+
+Status quo: manual search + paper/phone
+
+Full user control.
+
+Slow, unverifiable, incomplete — the cost the concept targets. [H]
+
+[H]
+
+Primary strategic threat [H]: the incumbent HMIS vendor adds an encounter summary natively at near-zero marginal cost to the customer. The defensible wedge is cross-source attribution + explicit pending/failed-access states + IPS conformance — none individually unassailable. This is why the strategy carries an explicit PIVOT path to an HMIS-vendor partnership.
+
+5. Market sizing — transparent method (no invented figures)
+
+Credible, free, clinic-level counts for the precise segment (private multispecialty clinics, 50–500 OPD/day, already running an HMIS) were not located in open sources; available counts sit behind paid market reports. Per the research standard, a bottom-up METHOD with labelled assumptions is provided instead of a fabricated number.
+
+Layer
+
+Definition
+
+Formula
+
+Status
+
+TAM
+
+All Indian private clinics/hospitals that could run a summary layer.
+
+N(private facilities with digitised records) × ACV
+
+Needs sourced facility count [Q]
+
+SAM
+
+Private multispecialty clinics, 50–500 OPD/day, with an integrable HMIS.
+
+N(segment, filtered by HMIS integrability) × ACV
+
+Needs facility count + HMIS-integrability rate [Q]
+
+SOM (3-yr)
+
+Realistically winnable given sales capacity and integration lead time.
+
+SAM × reachable share × win rate × ramp
+
+Set after pilot conversion data [E]
+
+ACV (annual contract value) is itself a hypothesis to be set by buyer interviews and LOIs — see MRD validation gate. Verified macro context (ABDM: ~93.95 crore ABHA IDs and 104+ crore linked health records, July 2026 [V-S]) confirms the digitisation substrate exists but is not a proxy for demand for this product.
+
+6. Evidence summary & confidence
+
+• STRONG (verified): the general clinician EHR/chart-review time burden; the India regulatory regime (DPDP, ABDM HDM, HIP/HIU); interoperability standards (IPS, FHIR, EHR Standards for India); national digitisation scale.
+
+• MODERATE (reasoned): competitive gaps inferred from official documentation; segment prioritisation logic.
+
+• WEAK / ABSENT (requires primary work): India OPD-specific magnitude of the problem; demand for a separate dashboard vs. improving the HMIS; willingness to pay; buyer economics; segment counts for sizing.
+
+Bottom line: the problem class and the compliance/interoperability terrain are well-evidenced and ready to design against. The market case for THIS product is a credible, well-structured hypothesis — not yet a proven market. The 8-week validation gate (MRD §6) is the mechanism that converts hypothesis to decision.
+
+Source register
+
+[1] Sinsky C, Colligan L, Li L, et al. Allocation of Physician Time in Ambulatory Practice: A Time and Motion Study in 4 Specialties. Ann Intern Med 2016;165(11):753–760. https://www.acpjournals.org/doi/10.7326/M16-0961 — accessed 24 Oct 2026.
+
+[2] Arndt BG, Beasley JW, Watkinson MD, et al. Tethered to the EHR. Ann Fam Med 2017;15(5):419–426. https://www.annfammed.org/content/15/5/419 — accessed 24 Oct 2026.
+
+[3] Overhage JM, McCallie D. Physician Time Spent Using the EHR During Outpatient Encounters. Ann Intern Med 2020;172(3):169–174. https://www.acpjournals.org/doi/10.7326/M18-3684 — accessed 24 Oct 2026.
+
+[4] Digital Personal Data Protection Act, 2023; DPDP Rules 2025 (MeitY notification, Nov 2025). https://www.meity.gov.in — confirm commencement dates in the Gazette. Accessed 24 Oct 2026.
+
+[5] National Health Authority. ABDM Health Data Management Policy; HIP/HIU Guidelines. https://abdm.gov.in and https://abdm.gov.in:8081/uploads/HIP_HIU_Guidelines_f85df336ec.pdf — accessed 24 Oct 2026.
+
+[6] Ministry of Health & Family Welfare. EHR Standards for India, 2016. https://www.nrces.in — accessed 24 Oct 2026.
+
+[7] HL7 International Patient Summary Implementation Guide (STU1); ISO 27269:2021. https://hl7.org/fhir/uv/ips/STU1/ — accessed 24 Oct 2026.
+
+[8] ABDM adoption figures (~93.95 crore ABHA IDs; 104+ crore linked records, July 2026): IANS https://ianslive.in/ayushman-bharat-digital-mission-links-over-104-crore-health-records--20260706133553 ; Indian Pharma Post https://www.indianpharmapost.com/policy/lite/ayushman-bharat-digital-mission-crosses-9395-crore-abha-ids-20877 — secondary; replace with PIB primary. Accessed 24 Oct 2026.
+
+[9] Bahmni documentation (Patient Dashboard; ABDM HIP). https://bahmni.atlassian.net/wiki/spaces/BAH/pages/37945463/Patient+Dashboard+Overview — accessed 24 Oct 2026.
+
+[10] NIC e-Hospital @NIC. https://ehospital.nic.in — accessed 24 Oct 2026.
+
+Limitations: items [1]–[3] are high-quality peer-reviewed studies conducted in US settings; applicability to Indian OPD is analogical, not direct. ABDM figures [8] are from secondary news citing government statements. No primary customer research has been conducted; nothing in this dossier should be read as validated demand.
