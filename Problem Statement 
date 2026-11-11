@@ -1,0 +1,51 @@
+# Problem Statement — Patient Summary Dashboard
+
+**Project:** MEDICO-MEDIA · **Geography:** India · **Status:** Hypothesis, under validation · **Last updated:** 11 Nov 2026
+
+---
+
+## 1. Initial problem statement (as given)
+
+> "During busy clinical periods, doctors may not have quick visibility into important patient information."
+
+## 2. Initial solution hypothesis (as given)
+
+Build a simple, secure dashboard that lets authorized doctors quickly view:
+
+1. Patient appointments and relevant scheduling information.
+2. Basic patient history and clinically relevant background.
+3. Reports (lab / investigation / imaging results).
+4. Pending actions — access requests, authorization / consent states, and unavailable records requiring attention.
+
+> **Note:** "pending access" is **not** one thing. It is four distinct states that must never be treated as interchangeable (see §4).
+
+## 3. Refined problem statement (after evidence review)
+
+> "During high-volume periods, OPD consultants in digitised private multispecialty clinics cannot assemble a trusted, encounter-relevant picture of a patient quickly, because the needed information is scattered, inconsistently attributed, and sometimes inaccessible — costing consultation time and risking decisions made on incomplete information."
+
+**Evidence grade:** `[H]` Hypothesis, supported by strong *analogous* peer-reviewed evidence (US ambulatory time-motion studies). The magnitude in Indian OPD is **unmeasured** and is the first thing the validation sprint measures.
+
+## 4. "Pending access" — the four states
+
+| State | Meaning | Required product behaviour |
+|---|---|---|
+| Access requested | Access asked for, awaiting approval | Show "request pending"; do not imply absence |
+| Consent pending | DPDP / ABDM consent not yet granted | Show "consent required/pending"; item hidden until valid consent |
+| Access restricted | User's role not permitted | Show "restricted for your role"; log the denial |
+| Retrieval failed | Data exists but fetch failed | Show "failed to retrieve"; **never** render as "none" (allergy safety rule) |
+
+## 5. Critical open question — is a dashboard the right fix?
+
+The friction could be caused by any of: interface design, system fragmentation, data quality, access restrictions, workflow design, or training. **A dashboard only fixes the first two.** The validation sprint must isolate the dominant root cause before any build. If the dominant cause is data quality or access policy, the dashboard is the wrong primary intervention — this is encoded in the Stop criteria.
+
+## 6. Decision gate (8-week validation)
+
+| Decision | Condition |
+|---|---|
+| **PROCEED** | ≥60% of interviewed clinicians report weekly retrieval friction **AND** baseline time-to-info measured **AND** read-integration feasible on ≥2 HMIS **AND** ≥3 signed LOIs |
+| **PIVOT** | ≥40% report friction but any Proceed condition unmet → HMIS-vendor partnership, or narrow to one specialty/facility |
+| **STOP** | <40% report friction **OR** integration infeasible on every HMIS tested |
+
+---
+
+*See the MRD and PRD in `/docs` for the full analysis, evidence, requirements register, and go-to-market.*
